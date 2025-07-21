@@ -1,5 +1,5 @@
-import type { HistoryOptions as TiptapHistoryOptions } from '@tiptap/extension-history'
-import { History as TiptapHistory } from '@tiptap/extension-history'
+import type { UndoRedoOptions as TiptapHistoryOptions } from '@tiptap/extensions'
+import { UndoRedo as TiptapHistory } from '@tiptap/extensions'
 
 import ActionButton from '@/components/ActionButton.vue'
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch, nextTick } from 'vue'
 import type { Editor } from '@tiptap/vue-3'
-import { BubbleMenu } from '@tiptap/vue-3'
+import { BubbleMenu } from '@tiptap/vue-3/menus'
 import { useLocale } from '@/locales'
 import { useHotkeys, useTiptapStore } from '@/hooks'
 import { Input } from '@/components/ui/input'

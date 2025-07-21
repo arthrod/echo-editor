@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Editor } from '@tiptap/vue-3'
-import { BubbleMenu, isActive } from '@tiptap/vue-3'
+import { isActive } from '@tiptap/vue-3'
+import { BubbleMenu } from '@tiptap/vue-3/menus'
 import { useLocale } from '@/locales'
 import ActionButton from '@/components/ActionButton.vue'
 import { sticky } from 'tippy.js'

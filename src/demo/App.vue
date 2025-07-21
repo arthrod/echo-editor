@@ -236,7 +236,6 @@ const fullExtensions = [
   SlashCommand,
   HorizontalRule,
   CodeBlock,
-  Table.configure({ spacer: true }),
   Code,
   AI.configure({
     completions: AICompletions,
