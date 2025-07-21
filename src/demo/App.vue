@@ -218,6 +218,7 @@ const fullExtensions = [
     },
   }),
   Link,
+  Table,
   Image,
   ImageUpload.configure({
     upload: (files: File) => {
