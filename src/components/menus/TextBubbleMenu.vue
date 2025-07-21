@@ -9,6 +9,8 @@ import type { BaseKitOptions } from '@/extensions/BaseKit'
 import type { BubbleTypeMenu } from './BasicBubble'
 import { useLocale } from '@/locales'
 import { useTiptapStore } from '@/hooks'
+import { isCustomNodeSelected } from '@/utils/isCustomNodeSelected'
+import { isTextSelected } from '@/utils/isTextSelected'
 
 interface Props {
   editor: Editor
@@ -22,12 +24,6 @@ const props = withDefaults(defineProps<Props>(), {
 const store = useTiptapStore()
 
 const { t } = useLocale()
-const tippyOptions = reactive<Record<string, unknown>>({
-  maxWidth: 'auto',
-  zIndex: 20,
-  appendTo: 'parent',
-  moveTransition: 'transform 0.15s ease-out',
-})
 
 const nodeType = computed(() => {
   const selection = props.editor.state.selection as NodeSelection
@@ -58,18 +54,47 @@ const nodeMenus = computed(() => {
   return _button
 })
 
+const shouldShow = ({ editor, view, from }) => {
+  if (!view) {
+    return false
+  }
+  const domAtPos = view.domAtPos(from || 0).node as HTMLElement
+  const nodeDOM = view.nodeDOM(from || 0) as HTMLElement
+  const node = nodeDOM || domAtPos
+  if (isCustomNodeSelected(editor, node)) {
+    return false
+  }
+  return isTextSelected({ editor })
+}
+const textMenu = [
+  'AI',
+  'divider',
+  'text-bubble',
+  'divider',
+  'bold',
+  'italic',
+  'underline',
+  'strike',
+  'code',
+  'link',
+  'divider',
+  'color',
+  'highlight',
+  'textAlign',
+]
+
 const items = computed(() => {
   if (!nodeType.value) return []
   return unref(nodeMenus)?.[nodeType.value] ?? []
 })
 </script>
 <template>
-  <BubbleMenu v-show="items.length && !store?.state.AIMenu" :editor="editor" :tippy-options="tippyOptions">
+  <BubbleMenu :editor="editor" plugin-key="textMenu" :should-show="shouldShow">
     <div
       class="border px-3 py-2 transition-all select-none pointer-events-auto shadow-sm rounded-sm bg-background w-auto max-w-[calc(-68px_+_100vw)] overflow-x-auto"
     >
       <div class="flex items-center flex-nowrap whitespace-nowrap h-[26px] justify-start relative gap-0.5">
-        <template v-for="(item, key) in items" :key="key">
+        <template v-for="item in items">
           <!-- Divider -->
           <Separator v-if="item.type === 'divider'" orientation="vertical" class="mx-1 me-1 h-[16px]" />
           <!-- Buttons -->

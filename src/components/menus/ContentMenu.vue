@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { Icon } from '@/components/icons'
-import { DragHandlePlugin } from '@/plugins/DragHandle'
+import { defaultComputePositionConfig, DragHandlePlugin } from '@tiptap/extension-drag-handle'
 import { Button } from '@/components/ui/button'
 import { Node } from '@tiptap/pm/model'
 import type { Editor } from '@tiptap/vue-3'
@@ -53,15 +53,11 @@ onMounted(() => {
     // 初始化并注册插件
     pluginRef.value = DragHandlePlugin({
       editor: props.editor,
-      element: dragElement.value,
+      element: dragElement.value as HTMLElement,
       pluginKey: props.pluginKey,
-      tippyOptions: {
-        offset: [-2, 16],
-        zIndex: 9,
-        moveTransition: 'transform 0.15s ease-out',
-      },
+      computePositionConfig: { ...defaultComputePositionConfig },
       onNodeChange: handleNodeChange,
-    })
+    }).plugin
 
     props.editor.registerPlugin(pluginRef.value)
   }

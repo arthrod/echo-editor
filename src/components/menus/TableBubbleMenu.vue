@@ -4,8 +4,6 @@ import { isActive } from '@tiptap/vue-3'
 import { BubbleMenu } from '@tiptap/vue-3/menus'
 import { useLocale } from '@/locales'
 import ActionButton from '@/components/ActionButton.vue'
-import { sticky } from 'tippy.js'
-import type { GetReferenceClientRect } from 'tippy.js'
 import HighlightActionButton from '@/extensions/Highlight/components/HighlightActionButton.vue'
 import { Separator } from '@/components/ui/separator'
 
@@ -55,7 +53,7 @@ function onDeleteTable() {
 function onSetCellBackground(color: string) {
   props.editor.chain().focus().setTableCellBackground(color).run()
 }
-const getReferenceClientRect: GetReferenceClientRect = () => {
+const getReferenceClientRect = () => {
   const {
     view,
     state: {
@@ -77,19 +75,7 @@ const getReferenceClientRect: GetReferenceClientRect = () => {
 }
 </script>
 <template>
-  <BubbleMenu
-    :editor="editor"
-    pluginKey="table"
-    :shouldShow="shouldShow"
-    :updateDelay="0"
-    :tippy-options="{
-      offset: [0, 8],
-      maxWidth: 'auto',
-      getReferenceClientRect,
-      plugins: [sticky],
-      sticky: 'popper',
-    }"
-  >
+  <BubbleMenu :editor="editor" pluginKey="table" :shouldShow="shouldShow" :updateDelay="0">
     <div
       class="min-w-32 flex flex-row h-full items-center leading-none gap-0.5 p-2 w-full bg-background rounded-lg shadow-sm border border-border"
     >

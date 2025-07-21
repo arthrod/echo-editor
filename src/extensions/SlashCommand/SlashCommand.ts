@@ -1,7 +1,6 @@
-import { Editor, Extension } from '@tiptap/core'
-import type { Range } from '@tiptap/core'
+import { Editor, Extension, Range } from '@tiptap/core'
 import { VueRenderer } from '@tiptap/vue-3'
-import Suggestion, { type SuggestionProps, type SuggestionKeyDownProps } from '@tiptap/suggestion'
+import Suggestion, { SuggestionProps, SuggestionKeyDownProps } from '@tiptap/suggestion'
 import { PluginKey } from '@tiptap/pm/state'
 import tippy from 'tippy.js'
 import { renderGroups } from './groups'
@@ -19,26 +18,26 @@ export const SlashCommand = Extension.create<SlashCommandOptions>({
   name: extensionName,
   priority: 200,
   onCreate() {
-    popup = tippy('body', {
-      interactive: true,
-      trigger: 'manual',
-      placement: 'bottom-start',
-      theme: 'slash-command',
-      maxWidth: '16rem',
-      offset: [16, 8],
-      popperOptions: {
-        strategy: 'fixed',
-        modifiers: [
-          {
-            name: 'flip',
-            enabled: false,
-          },
-        ],
-      },
-      onCreate(instance) {
-        instance.popper.classList.add('echo-editor')
-      },
-    })
+    // popup = tippy('body', {
+    //   interactive: true,
+    //   trigger: 'manual',
+    //   placement: 'bottom-start',
+    //   theme: 'slash-command',
+    //   maxWidth: '16rem',
+    //   offset: [16, 8],
+    //   popperOptions: {
+    //     strategy: 'fixed',
+    //     modifiers: [
+    //       {
+    //         name: 'flip',
+    //         enabled: false,
+    //       },
+    //     ],
+    //   },
+    //   onCreate(instance) {
+    //     instance.popper.classList.add('echo-editor')
+    //   },
+    // })
   },
 
   addProseMirrorPlugins() {

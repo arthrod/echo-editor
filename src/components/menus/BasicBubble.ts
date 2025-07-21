@@ -3,17 +3,13 @@ import type { Editor } from '@tiptap/vue-3'
 import ActionButton from '../ActionButton.vue'
 import { VIDEO_SIZE } from '@/constants'
 import type { ButtonViewParams, ButtonViewReturn, ExtensionNameKeys } from '@/type'
-/** Represents the size types for bubble images or videos */
-type BubbleImageOrVideoSizeType = 'size-small' | 'size-medium' | 'size-large'
 
-/** Represents the various types for bubble images */
-type BubbleImageType = `video-${BubbleImageOrVideoSizeType}` | 'image' | 'image-aspect-ratio' | 'remove'
 
 /** Represents the types for bubble videos */
 type BubbleVideoType = 'video' | 'remove'
 
 /** Represents the overall types for bubbles */
-type BubbleAllType = BubbleImageType | BubbleVideoType | ExtensionNameKeys | 'divider' | (string & {})
+type BubbleAllType = BubbleVideoType | ExtensionNameKeys | 'divider' | (string & {})
 
 /** Represents the key types for node types */
 export type NodeTypeKey = 'image' | 'text' | 'video'
@@ -58,24 +54,8 @@ export interface BubbleOptions<T> {
   button: BubbleView<T>
 }
 
-// 视频尺寸菜单
-const videoSizeMenus = (editor: Editor): BubbleMenuItem[] => {
-  const types: BubbleImageOrVideoSizeType[] = ['size-small', 'size-medium', 'size-large']
-  const icons: NonNullable<ButtonViewReturn['componentProps']['icon']>[] = ['SizeS', 'SizeM', 'SizeL']
 
-  return types.map((size, i) => ({
-    type: `video-${size}`,
-    component: ActionButton,
-    componentProps: {
-      tooltip: `editor.${size.replace('-', '.')}.tooltip`,
-      icon: icons[i],
-      action: () => editor.commands.updateVideo({ width: VIDEO_SIZE[size] }),
-      isActive: () => editor.isActive('video', { width: VIDEO_SIZE[size] }),
-    },
-  }))
-}
 export const defaultBubbleList = (editor: Editor): BubbleMenuItem[] => [
-  ...videoSizeMenus(editor),
   {
     type: 'remove',
     component: ActionButton,

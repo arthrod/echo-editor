@@ -1,9 +1,7 @@
 <script lang="ts" setup>
 import { ref, watch, computed } from 'vue'
 import type { Editor } from '@tiptap/vue-3'
-import { isActive } from '@tiptap/vue-3'
 import { BubbleMenu } from '@tiptap/vue-3/menus'
-import { sticky } from 'tippy.js'
 import { getRenderContainer } from '@/utils/getRenderContainer'
 import { useLocale } from '@/locales'
 import { deleteSelection } from '@tiptap/pm/commands'
@@ -57,7 +55,7 @@ function changeImagePercent(event?: any) {
     .updateImage({ width: `${percent}%` })
     .run()
 }
-const shouldShow = ({ editor }) => isActive(editor.view.state, 'image')
+const shouldShow = ({ editor }) => editor.isActive('image')
 
 const getReferenceClientRect = computed(() => {
   const renderContainer = getRenderContainer(props.editor, 'node-image')
@@ -131,17 +129,12 @@ function handleRemove() {
 <template>
   <BubbleMenu
     :editor="editor"
-    pluginKey="image-menus-123"
-    :shouldShow="shouldShow"
-    :updateDelay="0"
-    :tippy-options="{
-      offset: [0, 8],
-      zIndex: 10,
-      appendTo: 'parent',
-      getReferenceClientRect: getReferenceClientRect.value,
-      plugins: [sticky],
-      sticky: 'popper',
+    pluginKey="imageMenu"
+    :options="{
+      autoPlacement: true,
+      placement: 'top',
     }"
+    :shouldShow="shouldShow"
   >
     <div
       class="border px-3 py-2 transition-all select-none pointer-events-auto shadow-sm rounded-sm w-auto bg-background"

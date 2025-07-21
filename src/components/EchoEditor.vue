@@ -2,7 +2,6 @@
 import { computed, watch, onUnmounted, unref, useAttrs, ref } from 'vue'
 import { Editor as CoreEditor } from '@tiptap/core'
 import type { AnyExtension, JSONContent } from '@tiptap/core'
-
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import type { EditorOptions } from '@tiptap/vue-3'
 import { EDITOR_UPDATE_THROTTLE_WAIT_TIME } from '@/constants'
@@ -10,12 +9,13 @@ import { differenceBy, getCssUnitWithDefault, hasExtension, isEqual, throttle } 
 import { useLocale } from '@/locales'
 import { useTiptapStore } from '@/hooks'
 import { useTheme } from '@/hooks/useTheme'
-import BasicBubbleMenu from './menus/BasicBubbleMenu.vue'
+import TextBubbleMenu from './menus/TextBubbleMenu.vue'
 import LinkBubbleMenu from './menus/LinkBubbleMenu.vue'
 import TableBubbleMenu from './menus/TableBubbleMenu.vue'
 import ContentMenu from './menus/ContentMenu.vue'
 import ColumnsBubbleMenu from './menus/ColumnsBubbleMenu.vue'
 import ImageBubbleMenu from './menus/ImageBubbleMenu.vue'
+import VideoBubbleMenu from './menus/VideoBubbleMenu.vue'
 import AIMenu from './menus/AIMenu.vue'
 import Menubars from './Menubars.vue'
 import Toolbar from './Toolbar.vue'
@@ -231,7 +231,8 @@ defineExpose({ editor })
           <TableBubbleMenu v-if="hasExtension(editor, 'table')" :editor="editor" />
           <AIMenu v-if="hasExtension(editor, 'AI')" :editor="editor" />
           <ImageBubbleMenu v-if="hasExtension(editor, 'image')" :editor="editor" />
-          <BasicBubbleMenu :editor="editor" />
+          <VideoBubbleMenu v-if="hasExtension(editor, 'video')" :editor="editor" />
+          <TextBubbleMenu :editor="editor" />
         </template>
       </div>
       <div v-if="hasExtension(editor, 'characterCount')" class="flex justify-between border-t p-3 items-center">

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { sticky } from 'tippy.js'
 import type { Editor } from '@tiptap/vue-3'
 import { isActive } from '@tiptap/vue-3'
 import { BubbleMenu } from '@tiptap/vue-3/menus'
@@ -35,18 +34,7 @@ const onDelete = () => {
 </script>
 
 <template>
-  <BubbleMenu
-    :editor="editor"
-    pluginKey="columns"
-    :shouldShow="shouldShow"
-    :updateDelay="0"
-    :tippy-options="{
-      offset: [0, 8],
-      getReferenceClientRect,
-      plugins: [sticky],
-      sticky: 'popper',
-    }"
-  >
+  <BubbleMenu :editor="editor" pluginKey="columns" :shouldShow="shouldShow" :updateDelay="0">
     <div class="p-2 bg-background rounded-lg shadow-sm border">
       <div class="flex gap-1 items-center">
         <ActionButton
