@@ -26,7 +26,10 @@ export const SlashCommand = Extension.create<SlashCommandOptions>({
     floatingElement.style.position = 'absolute'
     floatingElement.style.zIndex = '1'
     floatingElement.style.display = 'none'
-    document.body.appendChild(floatingElement)
+    const editor = document.getElementsByClassName('echo-editor')
+    if (editor) {
+      editor[0].appendChild(floatingElement)
+    }
   },
 
   onDestroy() {

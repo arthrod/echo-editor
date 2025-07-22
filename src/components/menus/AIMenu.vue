@@ -32,9 +32,7 @@ const { focused } = useFocus(inputRef)
 const resultContainer = ref<HTMLDivElement | null>(null)
 const { t } = useLocale()
 const isShaking = ref<boolean>(false)
-const tippyInstance = ref<any>(null)
 const menuRef = ref()
-const bubbleRef = ref()
 
 const { result, status, handleCompletion, resetConversation, stopGeneration } = useAIConversation(props.editor)
 
@@ -140,7 +138,6 @@ const bubbleOptions = reactive({
     handleClose()
   },
   onDestroy() {
-    tippyInstance.value = null
     unbind()
   },
 })
@@ -301,6 +298,7 @@ function handleKey(e) {
           </div>
           <Input
             v-model="prompt"
+            autofocus
             ref="inputRef"
             v-else
             :placeholder="t('editor.AI.placeholder')"

@@ -61,6 +61,9 @@ const shouldShow = ({ editor, view, from }) => {
   const domAtPos = view.domAtPos(from || 0).node as HTMLElement
   const nodeDOM = view.nodeDOM(from || 0) as HTMLElement
   const node = nodeDOM || domAtPos
+  if (store.state.AIMenu) {
+    return false
+  }
   if (isCustomNodeSelected(editor, node)) {
     return false
   }
