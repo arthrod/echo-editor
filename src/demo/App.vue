@@ -248,6 +248,22 @@ const fullExtensions = [
   FindAndReplace.configure({ spacer: true }),
   Printer,
   Iframe,
+  AI.configure({
+    completions: AICompletions,
+    shortcuts: [
+      // 这里可以传入额外的自定义shortcuts
+      {
+        label: 'Custom Actions',
+        children: [
+          {
+            label: 'This is Custom Action',
+            prompt:
+              'Rewrite this content with no spelling mistakes, proper grammar, and with more descriptive language, using best writing practices without losing the original meaning.',
+          },
+        ],
+      },
+    ],
+  }),
 ]
 
 function toggleMinimal() {

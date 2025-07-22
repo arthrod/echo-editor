@@ -14,7 +14,6 @@ import Menu from '../ui/menu.vue'
 import { DOMSerializer } from 'prosemirror-model'
 import { useAIConversation } from '@/hooks/useAIConversation'
 import { DEFAULT_SHORTCUTS } from '@/extensions/AI/constants'
-import type { Props as TippyProps } from 'tippy.js'
 
 interface Props {
   editor: Editor
@@ -35,6 +34,7 @@ const { t } = useLocale()
 const isShaking = ref<boolean>(false)
 const tippyInstance = ref<any>(null)
 const menuRef = ref()
+const bubbleRef = ref()
 
 const { result, status, handleCompletion, resetConversation, stopGeneration } = useAIConversation(props.editor)
 
@@ -128,13 +128,8 @@ const { bind, unbind } = useHotkeys('esc', () => {
   handleClose()
 })
 
-const tippyOptions = reactive<Partial<TippyProps>>({
-  maxWidth: 600,
-  zIndex: 99,
-  appendTo: 'parent',
-  placement: 'bottom-start',
-  onShow(instance) {
-    tippyInstance.value = instance
+const bubbleOptions = reactive({
+  onShow() {
     bind()
     setTimeout(() => {
       focused.value = true
@@ -153,7 +148,6 @@ const tippyOptions = reactive<Partial<TippyProps>>({
 const shouldShow: any = computed(() => {
   return store?.state.AIMenu
 })
-
 function handleClose() {
   prompt.value = ''
   cachedPrompt.value = null
@@ -271,14 +265,14 @@ function handleKey(e) {
 </script>
 <template>
   <div
-    class="absolute left-0 right-0 top-0 bottom-0"
+    class="absolute left-0 right-0 top-0 bottom-0 ojbk z-[10]!"
     :style="{
       zIndex: status === 'init' && prompt === '' ? -1 : 98,
     }"
-    v-show="shouldShow"
+    v-show="store.state.AIMenu"
     @click="handleOverlayClick"
   >
-    <BubbleMenu pluginKey="AIMenu" :update-delay="0" v-show="shouldShow" :editor="editor" :tippy-options="tippyOptions">
+    <BubbleMenu pluginKey="AIMenu" :options="bubbleOptions" :update-delay="0" v-if="shouldShow" :editor="editor">
       <div @keydown="handleKey" class="relative w-[450px] z-[99]" :class="{ 'shake-animation': isShaking }">
         <div
           class="border rounded-sm shadow-sm bg-background"

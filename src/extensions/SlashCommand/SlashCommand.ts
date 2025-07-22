@@ -2,42 +2,45 @@ import { Editor, Extension, Range } from '@tiptap/core'
 import { VueRenderer } from '@tiptap/vue-3'
 import Suggestion, { SuggestionProps, SuggestionKeyDownProps } from '@tiptap/suggestion'
 import { PluginKey } from '@tiptap/pm/state'
-import tippy from 'tippy.js'
 import { renderGroups } from './groups'
 import MenuList from './CommandsList.vue'
 import type { Group } from './types'
 import { useLocale } from '@/locales'
+import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
 
 interface SlashCommandOptions {
   getCommandGroups?: (options: { editor: Editor; presetGroups: Group[]; lang: string }) => Group[]
 }
 
 const extensionName = 'slashCommand'
-let popup: any
+let floatingElement: HTMLElement | null = null
+let cleanup: (() => void) | null = null
+
 export const SlashCommand = Extension.create<SlashCommandOptions>({
   name: extensionName,
   priority: 200,
   onCreate() {
-    // popup = tippy('body', {
-    //   interactive: true,
-    //   trigger: 'manual',
-    //   placement: 'bottom-start',
-    //   theme: 'slash-command',
-    //   maxWidth: '16rem',
-    //   offset: [16, 8],
-    //   popperOptions: {
-    //     strategy: 'fixed',
-    //     modifiers: [
-    //       {
-    //         name: 'flip',
-    //         enabled: false,
-    //       },
-    //     ],
-    //   },
-    //   onCreate(instance) {
-    //     instance.popper.classList.add('echo-editor')
-    //   },
-    // })
+    // 创建浮动元素容器
+    floatingElement = document.createElement('div')
+    floatingElement.className = 'echo-editor slash-command-menu'
+    floatingElement.style.position = 'absolute'
+    floatingElement.style.zIndex = '1'
+    floatingElement.style.display = 'none'
+    document.body.appendChild(floatingElement)
+  },
+
+  onDestroy() {
+    // 清理浮动元素
+    if (floatingElement) {
+      document.body.removeChild(floatingElement)
+      floatingElement = null
+    }
+
+    // 清理自动更新
+    if (cleanup) {
+      cleanup()
+      cleanup = null
+    }
   },
 
   addProseMirrorPlugins() {
@@ -113,52 +116,70 @@ export const SlashCommand = Extension.create<SlashCommandOptions>({
         render: () => {
           let component: any
           let scrollHandler: (() => void) | null = null
+
           return {
             onStart: (props: SuggestionProps) => {
               component = new VueRenderer(MenuList, {
                 props,
                 editor: props.editor,
               })
+
               const { view } = props.editor
               const editorNode = view.dom as HTMLElement
-              const getReferenceClientRect = () => {
-                if (!props.clientRect) {
-                  return props.editor.storage[extensionName].rect
+
+              // 将组件挂载到浮动元素中
+              if (floatingElement) {
+                floatingElement.innerHTML = ''
+                floatingElement.appendChild(component.element)
+                floatingElement.style.display = 'block'
+
+                // 设置初始位置
+                const updatePosition = () => {
+                  if (!props.clientRect || !floatingElement) return
+
+                  const rect = props.clientRect()
+                  if (!rect) return
+
+                  // 保存位置信息到存储中
+                  props.editor.storage[extensionName].rect = rect
+
+                  // 使用 Floating UI 计算位置
+                  computePosition(
+                    { getBoundingClientRect: () => rect },
+                    floatingElement,
+                    {
+                      placement: 'bottom-start',
+                      middleware: [
+                        offset({ mainAxis: 8, crossAxis: 16 }),
+                        shift()
+                      ]
+                    }
+                  ).then(({ x, y }) => {
+                    if (floatingElement) {
+                      floatingElement.style.left = `${x}px`
+                      floatingElement.style.top = `${y}px`
+                      floatingElement.style.maxWidth = '16rem'
+                    }
+                  })
                 }
 
-                const rect = props.clientRect()
+                // 设置自动更新位置
+                cleanup = autoUpdate(
+                  editorNode,
+                  floatingElement,
+                  updatePosition
+                )
 
-                if (!rect) {
-                  return props.editor.storage[extensionName].rect
+                // 处理编辑器滚动
+                scrollHandler = () => {
+                  updatePosition()
                 }
 
-                let yPos = rect.y
+                view.dom.parentElement?.addEventListener('scroll', scrollHandler)
 
-                if (rect.top + component.element.offsetHeight + 40 > window.innerHeight) {
-                  const diff = rect.top + component.element.offsetHeight - window.innerHeight + 40
-                  yPos = rect.y - diff
-                }
-
-                // Account for when the editor is bound inside a container that doesn't go all the way to the edge of the screen
-                const editorXOffset = editorNode.getBoundingClientRect().x
-                return new DOMRect(rect.x, yPos, rect.width, rect.height)
+                // 初始更新位置
+                updatePosition()
               }
-
-              scrollHandler = () => {
-                popup?.[0].setProps({
-                  getReferenceClientRect,
-                })
-              }
-
-              view.dom.parentElement?.addEventListener('scroll', scrollHandler)
-
-              popup?.[0].setProps({
-                getReferenceClientRect,
-                appendTo: () => document.body,
-                content: component.element,
-              })
-
-              popup?.[0].show()
             },
 
             onUpdate(props: SuggestionProps) {
@@ -166,67 +187,64 @@ export const SlashCommand = Extension.create<SlashCommandOptions>({
 
               const { view } = props.editor
 
-              const editorNode = view.dom as HTMLElement
-
-              const getReferenceClientRect = () => {
-                if (!props.clientRect) {
-                  return props.editor.storage[extensionName].rect
-                }
-
+              // 更新位置
+              if (floatingElement && props.clientRect) {
                 const rect = props.clientRect()
+                if (rect) {
+                  // 保存位置信息到存储中
+                  props.editor.storage[extensionName].rect = rect
 
-                if (!rect) {
-                  return props.editor.storage[extensionName].rect
+                  // 使用 Floating UI 计算位置
+                  computePosition(
+                    { getBoundingClientRect: () => rect },
+                    floatingElement,
+                    {
+                      placement: 'bottom-start',
+                      middleware: [
+                        offset({ mainAxis: 8, crossAxis: 16 }),
+                        shift()
+                      ]
+                    }
+                  ).then(({ x, y }) => {
+                    if (floatingElement) {
+                      floatingElement.style.left = `${x}px`
+                      floatingElement.style.top = `${y}px`
+                    }
+                  })
                 }
-
-                // Account for when the editor is bound inside a container that doesn't go all the way to the edge of the screen
-                return new DOMRect(rect.x, rect.y, rect.width, rect.height)
               }
-
-              let scrollHandler = () => {
-                popup?.[0].setProps({
-                  getReferenceClientRect,
-                })
-              }
-
-              view.dom.parentElement?.addEventListener('scroll', scrollHandler)
-
-              // eslint-disable-next-line no-param-reassign
-              props.editor.storage[extensionName].rect = props.clientRect
-                ? getReferenceClientRect()
-                : {
-                  width: 0,
-                  height: 0,
-                  left: 0,
-                  top: 0,
-                  right: 0,
-                  bottom: 0,
-                }
-              popup?.[0].setProps({
-                getReferenceClientRect,
-              })
             },
 
             onKeyDown(props: SuggestionKeyDownProps) {
               if (props.event.key === 'Escape') {
-                popup?.[0].hide()
-
+                if (floatingElement) {
+                  floatingElement.style.display = 'none'
+                }
                 return true
               }
 
-              if (!popup?.[0].state.isShown) {
-                popup?.[0].show()
+              if (floatingElement && floatingElement.style.display === 'none') {
+                floatingElement.style.display = 'block'
               }
 
               return component.ref?.onKeyDown(props)
             },
 
             onExit(props) {
-              popup?.[0].hide()
+              if (floatingElement) {
+                floatingElement.style.display = 'none'
+              }
+
               if (scrollHandler) {
                 const { view } = props.editor
                 view.dom.parentElement?.removeEventListener('scroll', scrollHandler)
               }
+
+              if (cleanup) {
+                cleanup()
+                cleanup = null
+              }
+
               component.destroy()
             },
           }

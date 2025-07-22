@@ -59,7 +59,14 @@ function onClickOutside() {
 </script>
 
 <template>
-  <BubbleMenu :editor="editor" :should-show="shouldShow" :update-delay="0">
+  <BubbleMenu
+    :editor="editor"
+    :should-show="shouldShow"
+    :options="{
+      autoPlacement: true,
+      placement: 'top',
+    }"
+  >
     <LinkEditBlock @onSetLink="onSetLink" @on-click-outside="onClickOutside" :editor="editor" v-if="showEdit" />
     <LinkViewBlock :editor="editor" @clear="unSetLink" @edit="showEdit = true" :link="link" v-else />
   </BubbleMenu>

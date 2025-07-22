@@ -140,6 +140,7 @@ const contentDynamicStyles = computed(() => ({
         overflowY: 'auto' as const,
         scrollBehavior: 'smooth',
         scrollbarWidth: 'thin',
+        position: 'relative',
       }),
   maxWidth: getCssUnitWithDefault(props.maxWidth),
   width: props.maxWidth ? '100%' : undefined,
@@ -171,7 +172,7 @@ watch(
   val => {
     if (!editor || isEqual(getOutput(editor, props.output), val)) return
     const { from, to } = editor.state.selection
-    editor.commands.setContent(val, false)
+    editor.commands.setContent(val)
     editor.commands.setTextSelection({ from, to })
   },
   { deep: true }
@@ -195,7 +196,7 @@ defineExpose({ editor })
 <template>
   <div
     v-if="editor"
-    class="echo-editor"
+    class="echo-editor echo-editor-container"
     :class="[
       editorClass,
       {
